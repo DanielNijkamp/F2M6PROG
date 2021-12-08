@@ -1,23 +1,43 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
+
 
 namespace F2M6PROG
 {
     class Archive
     {
-        private List<Book> Library = new List<Book>();
-        public void AddBook(params Book[] bookArray)
-        {
-            foreach (Book book in bookArray)
-            {
-                Library.Add(book);
-            }
-        }
-        public Book GetLibrary(int pos)
-        {
-            return Library[pos];
-        }
+        //permission level
+        //Series 1 THROUGH 7
+        //Class: safe, euclid, keter, thaumiel, neutralized, explained, apollyon
+        //user access level
 
+
+
+        //remove, add SCP's
+
+
+
+
+        /*private List<SCP> SCPS = new List<SCP>();
+        public void AddSCP(params SCP[] bookArray)
+        {
+            foreach (SCP book in bookArray)
+            {
+                 SCPS.Add(book);
+            }
+            return;
+           
+        }
+        public SCP GetSCP(int pos)
+        {
+            return SCPS[pos];
+            
+        }*/
+       
+        
+        
+       
     }
 }
