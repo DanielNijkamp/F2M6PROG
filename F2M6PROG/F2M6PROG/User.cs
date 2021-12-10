@@ -7,7 +7,7 @@ namespace F2M6PROG
     class User
     {
         public string Name;
-        public string password;
+        public string password { private set; get; }
         public int SecurityClearance;
 
         public User(int level, string name ,string password)

@@ -6,12 +6,22 @@ namespace F2M6PROG
 {
     public abstract class SCP
     {
-        public  string Name { get; private set; }
-        
+        public string Name { get; private set; }
+        public int AccessLevel { get; private set; }
 
-        protected SCP(string name)
+        public enum ObjectClass
+        {
+            Safe,
+            Euclid,
+            Keter,
+            Thaumiel,
+            Apollyon,
+        }
+
+        protected SCP(string name, int acceslevel)
         {
             this.Name = name;
+            this.AccessLevel = acceslevel;
         }
         public abstract void Description();
         

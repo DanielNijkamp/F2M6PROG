@@ -6,12 +6,6 @@ using System.Linq;
 
 namespace F2M6PROG
 {
-    /*while (AppRunning)
-             
-            {
-
-            }*/
-
     class Program
     {
 
@@ -20,15 +14,12 @@ namespace F2M6PROG
             bool GettingsCurrentUser = false;
             bool AppRunning = false;
             bool GettingPassword = false;
-
             GettingsCurrentUser = true;
+
+            Archive SCP_Archive = new Archive(); // create archive
+            DisplayFetchedUsers(); // displays users found in data,txt
+
             Console.WriteLine($"Select which user you want to use {Environment.NewLine}");
-            int i = 0;
-            foreach (KeyValuePair<string, User> user in GetUsers())
-            {
-                Console.WriteLine($"User [{user.Value.Name}] Found. Security Clearance is : [{user.Value.SecurityClearance}]");
-                i++;
-            }
             while (GettingsCurrentUser)
             {
                 GetCurrentUser(AskForInput());
@@ -51,6 +42,7 @@ namespace F2M6PROG
             }
             while (AppRunning)
             {
+                
 
             }
 
@@ -93,10 +85,6 @@ namespace F2M6PROG
             Directory.FetchedUser = false;
             return input;
         }
-
-
-
-
         public static void GetCurrentUser(int userint)
         {
             if (userint < GetUsers().Count)
@@ -108,7 +96,6 @@ namespace F2M6PROG
 
             }
         }
-        
         public static Dictionary<string, User> GetUsers()
         {
             string[] lines = File.ReadAllLines(@"D:\MA\Projects\F2M6PROG\F2M6PROG\F2M6PROG\Data.txt");
@@ -123,7 +110,15 @@ namespace F2M6PROG
             }
             return Users;
         }
-        
+        public static void DisplayFetchedUsers()
+        {
+            int i = 0;
+            foreach (KeyValuePair<string, User> user in GetUsers())
+            {
+                Console.WriteLine($"User [{user.Value.Name}] Found. Security Clearance is : [{user.Value.SecurityClearance}]");
+                i++;
+            }
+        }
     }
     static class Directory
     {

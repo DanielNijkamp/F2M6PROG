@@ -5,7 +5,7 @@ namespace F2M6PROG
 {
     class SCP002 : SCP
     {
-        public SCP002(string name) : base(name)
+        public SCP002(string name, int level) : base(name, level)
         {
 
         }
