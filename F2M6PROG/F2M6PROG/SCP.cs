@@ -8,7 +8,9 @@ namespace F2M6PROG
     {
         public string Name { get; private set; }
         public int AccessLevel { get; private set; }
+        public ObjectClass currentclass{get; private set;}
 
+     
         public enum ObjectClass
         {
             Safe,
@@ -17,6 +19,7 @@ namespace F2M6PROG
             Thaumiel,
             Apollyon,
         }
+        
 
         protected SCP(string name, int acceslevel)
         {
@@ -24,8 +27,38 @@ namespace F2M6PROG
             this.AccessLevel = acceslevel;
         }
         public abstract void Description();
-        
-        
+
+
+
+        /*public enum GameState
+        {
+            IDLE,
+            COMBAT,
+            CUTSCENE,
+            PLAYING
+        }
+
+        public GameState currentState = GameState.PLAYING;
+        public void Run()
+        {
+            switch (currentState)
+            {
+                case GameState.IDLE:
+                    if (true)
+                    {
+                        currentState = GameState.COMBAT;
+                    }
+                    break;
+                case GameState.COMBAT:
+                    break;
+                case GameState.CUTSCENE:
+                    break;
+                case GameState.PLAYING:
+                    break;
+                default:
+                    break;
+            }
+        }*/
 
         
     }

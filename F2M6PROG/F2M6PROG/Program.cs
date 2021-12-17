@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Text;
 using System.IO;
 using System.Linq;
+using Newtonsoft.Json.Serialization;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace F2M6PROG
 {
@@ -11,14 +14,14 @@ namespace F2M6PROG
 
         static void Main(string[] args)
         {
-            bool GettingsCurrentUser = false;
+            /*bool GettingsCurrentUser = false;
             bool AppRunning = false;
             bool GettingPassword = false;
             GettingsCurrentUser = true;
 
             Archive SCP_Archive = new Archive(); // create archive
             DisplayFetchedUsers(); // displays users found in data,txt
-
+            SCP scp002 = new SCP002("SCP002",3, SCP.ObjectClass.Keter);
             Console.WriteLine($"Select which user you want to use {Environment.NewLine}");
             while (GettingsCurrentUser)
             {
@@ -44,15 +47,16 @@ namespace F2M6PROG
             {
                 
 
-            }
+            }*/
 
+            GetUsers();
 
 
         }
         public static bool Login(User user)
         {
             string input = Console.ReadLine();
-            if (input == user.password)
+            if (input == user.Password)
             {
                 Console.WriteLine($"Succesfully logged in as {user.Name}");
                 return true;
@@ -96,24 +100,44 @@ namespace F2M6PROG
 
             }
         }
-        public static Dictionary<string, User> GetUsers()
+
+
+
+
+
+
+
+        public static Dictionary<int, User> GetUsers()
         {
-            string[] lines = File.ReadAllLines(@"D:\MA\Projects\F2M6PROG\F2M6PROG\F2M6PROG\Data.txt");
-            Dictionary<string, User> Users = new Dictionary<string, User>();
-            for (int count = 0; count <= lines.Length - 3;)
+            Dictionary<int, User> Users = new Dictionary<int, User>();
+            
+            string filename = @"D:\MA\Projects\F2M6PROG\F2M6PROG\F2M6PROG\Data.json";
+            string jsonstring = File.ReadAllText(filename);
+            Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(jsonstring);
+            int i = 0;
+            foreach(User user in Root.DatabaseUsers)
             {
-                if (!Users.TryAdd(lines[count + 1], new User(int.Parse(lines[count]), lines[count + 1], lines[count + 2])))
+                if (!Users.TryAdd(i, user))
                 {
-                    Console.WriteLine($"Error Retrieving user [{lines[count + 1]}]. Error: User already exists in archive {Environment.NewLine}");
+                    Console.WriteLine($"Error Retrieving user [{user.Name}]. Error: User already exists in archive {Environment.NewLine}");
                 }
-                count += 3;
+                Console.WriteLine($" Index of: [{i}] Name: [{user.Name}], Level: [{user.SecurityClearance}], Password: [{user.Password}]");
+                i++;
+                
             }
             return Users;
         }
+
+
+
+
+
+
+
         public static void DisplayFetchedUsers()
         {
             int i = 0;
-            foreach (KeyValuePair<string, User> user in GetUsers())
+            foreach (KeyValuePair<int, User> user in GetUsers())
             {
                 Console.WriteLine($"User [{user.Value.Name}] Found. Security Clearance is : [{user.Value.SecurityClearance}]");
                 i++;
@@ -122,9 +146,15 @@ namespace F2M6PROG
     }
     static class Directory
     {
+        
         public static bool FetchedUser = false;
         public static int InputUser;
         public static User currentuser;
+    }
+    class Root
+    {
+        [JsonProperty("Database_Users")]
+        public static User[] DatabaseUsers { get; set; }
     }
 }
 

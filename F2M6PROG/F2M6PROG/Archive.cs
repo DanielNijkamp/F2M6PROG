@@ -37,6 +37,9 @@ namespace F2M6PROG
         }*/
        
         
+        //sort from A to Z
+        //sort from objectclass
+        //sort from number
         
        
     }

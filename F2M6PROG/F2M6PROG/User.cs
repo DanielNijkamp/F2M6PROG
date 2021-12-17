@@ -1,20 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Globalization;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace F2M6PROG
 {
     class User
     {
-        public string Name;
-        public string password { private set; get; }
-        public int SecurityClearance;
+        [JsonProperty("Name")]
+        public string Name { get; set; }
 
-        public User(int level, string name ,string password)
-        {
-            this.Name = name;
-            this.SecurityClearance = level;
-            this.password = password;
-        }
+        [JsonProperty("SecurityClearance")]
+        public long SecurityClearance { get; set; }
+
+        [JsonProperty("Password")]
+        public string Password { get; set; }
     }
 }

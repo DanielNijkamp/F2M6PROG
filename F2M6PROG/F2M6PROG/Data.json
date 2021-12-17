@@ -1,0 +1,34 @@
+{
+    "Database_Users": [
+        {
+            "Name": "Daniel Nijkamp",
+            "SecurityClearance": 0,
+            "Password": "poopyheadass12345"
+        },
+        {
+            "Name": "Security",
+            "SecurityClearance": 1,
+            "Password": "security12345"
+        },
+        {
+            "Name": "Researchers",
+            "SecurityClearance": 3,
+            "Password": "science123455"
+        },
+        {
+            "Name": "kebabman5000",
+            "SecurityClearance": 4,
+            "Password": "kebab12345"
+        },
+        {
+            "Name": "Mark Rutte",
+            "SecurityClearance": 5,
+            "Password": "vvd12345"
+        },
+        {
+            "Name": "05 Council Member",
+            "SecurityClearance": 5,
+            "Password": "scp12345"
+        }
+    ]
+}
