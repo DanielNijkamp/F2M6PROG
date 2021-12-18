@@ -17,5 +17,6 @@ namespace F2M6PROG
 
         [JsonProperty("Password")]
         public string Password { get; set; }
+        
     }
 }

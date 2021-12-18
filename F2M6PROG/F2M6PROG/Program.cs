@@ -11,17 +11,17 @@ namespace F2M6PROG
 {
     class Program
     {
-
+        
         static void Main(string[] args)
         {
-            /*bool GettingsCurrentUser = false;
+            bool GettingsCurrentUser = false;
             bool AppRunning = false;
             bool GettingPassword = false;
             GettingsCurrentUser = true;
 
-            Archive SCP_Archive = new Archive(); // create archive
-            DisplayFetchedUsers(); // displays users found in data,txt
-            SCP scp002 = new SCP002("SCP002",3, SCP.ObjectClass.Keter);
+
+            Startup();
+            DisplayFetchedUsers();
             Console.WriteLine($"Select which user you want to use {Environment.NewLine}");
             while (GettingsCurrentUser)
             {
@@ -33,7 +33,7 @@ namespace F2M6PROG
                     Console.WriteLine($"Enter password for user {Directory.currentuser.Name} {Environment.NewLine}");
                 }
 
-            }
+            } // gets users and asks which user to login to
             while (GettingPassword)
             {
                 if (Login(Directory.currentuser))
@@ -42,53 +42,87 @@ namespace F2M6PROG
                     AppRunning = true;
                     
                 }
-            }
+            } // ask for password for the user 
             while (AppRunning)
             {
                 
 
-            }*/
-
-            GetUsers();
-
-
+            } //actual app
         }
         public static bool Login(User user)
         {
             string input = Console.ReadLine();
-            if (input == user.Password)
+            
+            if (input == "Quit" || input == "quit" || input == "Exit" || input == "exit")
             {
-                Console.WriteLine($"Succesfully logged in as {user.Name}");
-                return true;
+                Quit();
+                return false;
             }
             else
             {
-                Console.WriteLine("Incorrect password");
-                return false;
+                if (input == user.Password)
+                {
+                    Console.WriteLine($"Succesfully logged in as {user.Name}");
+                    return true;
+                }
+                else
+                {
+                    Console.WriteLine("Incorrect password");
+                    return false;
+                }
             }
+        } //login user
+        public static void Quit()
+        {
+            bool q1 = false;
+            Console.WriteLine("Are you sure you want to quit? Y/N");
+            while (!q1) 
+            {
+                string input = Console.ReadLine();
+                if (input == "Yes" || input == "Y" || input == "y")
+                {
+                    Environment.Exit(1);
+                }
+                if (input == "No" || input == "N" || input == "n")
+                {
+                    q1 = true;
+                    
+                }
+            }
+                
 
-        }
+        } //ask to close application
         public static int AskForInput()
         {
             int maxNumber = GetUsers().Count;
             int input;
-            if (int.TryParse(Console.ReadLine(), out input))
+            string console = Console.ReadLine();
+            if (console == "Quit" || console == "quit" || console == "Exit" || console == "exit")
             {
-                if (input < maxNumber)
-                {
-                    Directory.FetchedUser = true;
-                    Directory.InputUser = input;
-                    return input;
-                }
-                Console.WriteLine("Invalid input: Option not available");
+                Quit();
+                return 0;
             }
             else
             {
-                Console.WriteLine("Invalid input: Give a valid integer");
+                if (int.TryParse(console, out input))
+                {
+                    if (input < maxNumber)
+                    {
+                        Directory.FetchedUser = true;
+                        Directory.InputUser = input;
+                        return input;
+                    }
+                    Console.WriteLine("Invalid input: Option not available");
+                }
+                else
+                {
+                    Console.WriteLine("Invalid input: Give a valid integer");
+                }
+                Directory.FetchedUser = false;
+                return input;
             }
-            Directory.FetchedUser = false;
-            return input;
-        }
+        } // ask which user to use
+            
         public static void GetCurrentUser(int userint)
         {
             if (userint < GetUsers().Count)
@@ -99,14 +133,7 @@ namespace F2M6PROG
                 }
 
             }
-        }
-
-
-
-
-
-
-
+        } // get user index in users dictionary
         public static Dictionary<int, User> GetUsers()
         {
             Dictionary<int, User> Users = new Dictionary<int, User>();
@@ -121,19 +148,11 @@ namespace F2M6PROG
                 {
                     Console.WriteLine($"Error Retrieving user [{user.Name}]. Error: User already exists in archive {Environment.NewLine}");
                 }
-                Console.WriteLine($" Index of: [{i}] Name: [{user.Name}], Level: [{user.SecurityClearance}], Password: [{user.Password}]");
                 i++;
                 
             }
             return Users;
-        }
-
-
-
-
-
-
-
+        } // get users from .JSON file and return dictionary
         public static void DisplayFetchedUsers()
         {
             int i = 0;
@@ -142,7 +161,47 @@ namespace F2M6PROG
                 Console.WriteLine($"User [{user.Value.Name}] Found. Security Clearance is : [{user.Value.SecurityClearance}]");
                 i++;
             }
-        }
+        } // Display every user found in GetUsers()
+        public static void Startup()
+        {
+            string scp_logo = @"
+                                                
+                /mhhhhhhhhhhhhm/                
+            ```.ms            sd.```            
+         ```:sdy+`    `mm`    `+yds-```         
+       ```+ds:       `.NN``       :yd+```       
+      ` /mo`    .+ydNNoMNoMNdy+.    `om/ `      
+    ```hh.   `+dMMms+:-NN.:+smMMd+`   .hh```    
+   ``.ms    /mMNo.    `NN`    .oNMm:    sd```   
+   ``dy    sMMs`     :NMMN:     `yMMo    yd `   
+  ` +m`   oMM+        /NN:        oMM+   `N+ `  
+  ` mo   .NMh          //          hMN`   sd `  
+  ``N/   /MM/                      +MM/   /N``  
+  ``N/   /MM/  `-:://:    ://::-`  +MM/   /N``  
+  -sd-   .NMh  .dMMMy`    `yMMMd.  hMN`   :ms.  
+ .Ny      +hysmNhsN/        +NshNmsyh+      yN. 
+  -m+   .+hNmyy.  `          `  .yymNy+.   om-  
+   .ds  /ho-.mNNo.            -sNMm.-oh/  yd.   
+    `hh`     `/dMMmy+:----/+ymMNd/`     `hh`    
+     `yd.       .+ydNMMNNMMNdy+.       .dy`     
+       om/+ss:       `.--.`      `:ss+/mo       
+        /+:.-sdy+-`          `:+ydo-.:+/        
+            ```.:oyhhhyyyyhhhyo:.```            
+                ````````````````  
+";
+            string scp_text = @"
+  ######  ###### #######       #### #######    ###### ###  ## #### ###  ## ######              
+ ###  ## ###  ## ## #  ##     #####  ###  ##  ###  ## ###  ##  ### ###  ## ###  ##             
+ ####    ###     # ##  ##    ## ###  ###  ##  ###     ###  ##  ### ###  ## ###                 
+  #####  ###      ######    ##  ###  ######   ###     #######  ### ###  ## #####               
+    #### ###      ###      ########  ### ##   ###     ###  ##  ### ###  ## ###                 
+ ##  ### ###  ##  ###      ##   ###  ###  ##  ###  ## ###  ##  ###  #####  ###  ##             
+  #####   #####   ###      ##   ###  ###  ##   #####  ###  ##  ###   ###   ######              
+            ";
+            Console.WriteLine(scp_logo);
+            Console.WriteLine(scp_text);
+            Archive SCP_Archive = new Archive();
+        } // creates archive and shows scp logo
     }
     static class Directory
     {
@@ -150,11 +209,11 @@ namespace F2M6PROG
         public static bool FetchedUser = false;
         public static int InputUser;
         public static User currentuser;
-    }
+    } //store important information
     class Root
     {
         [JsonProperty("Database_Users")]
         public static User[] DatabaseUsers { get; set; }
-    }
+    } //json stuff
 }
 
