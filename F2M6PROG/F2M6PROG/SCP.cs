@@ -26,8 +26,9 @@ namespace F2M6PROG
             this.Name = name;
             this.AccessLevel = acceslevel;
         }
-        public abstract void Description();
+        public abstract void Show_Description();
 
+        public abstract void Show_Special_Containment_Procedures();
 
 
         /*public enum GameState

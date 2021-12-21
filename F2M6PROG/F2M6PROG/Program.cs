@@ -7,6 +7,7 @@ using Newtonsoft.Json.Serialization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
+
 namespace F2M6PROG
 {
     class Program
@@ -18,11 +19,11 @@ namespace F2M6PROG
             bool AppRunning = false;
             bool GettingPassword = false;
             GettingsCurrentUser = true;
-
-
+            Archive SCP_Archive = new Archive();
             Startup();
             DisplayFetchedUsers();
             Console.WriteLine($"Select which user you want to use {Environment.NewLine}");
+            SCP_Archive.Fetch_SCP_Library();
             while (GettingsCurrentUser)
             {
                 GetCurrentUser(AskForInput());
@@ -88,6 +89,10 @@ namespace F2M6PROG
                     q1 = true;
                     
                 }
+                else
+                {
+                    Console.WriteLine("Invalid input: Please give a valid input");
+                }
             }
                 
 
@@ -122,7 +127,6 @@ namespace F2M6PROG
                 return input;
             }
         } // ask which user to use
-            
         public static void GetCurrentUser(int userint)
         {
             if (userint < GetUsers().Count)
@@ -200,8 +204,8 @@ namespace F2M6PROG
             ";
             Console.WriteLine(scp_logo);
             Console.WriteLine(scp_text);
-            Archive SCP_Archive = new Archive();
-        } // creates archive and shows scp logo
+            
+        } //shows scp logo
     }
     static class Directory
     {

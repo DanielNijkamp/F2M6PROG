@@ -9,9 +9,13 @@ namespace F2M6PROG
         {
 
         }
-        public override void Description()
+        public override void Show_Description()
         {
            
+        }
+        public override void Show_Special_Containment_Procedures()
+        {
+            throw new NotImplementedException();
         }
     }
 }
