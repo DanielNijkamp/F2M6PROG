@@ -37,17 +37,24 @@ namespace F2M6PROG
         }
         public void Get_Specific_SCP()
         {
-            
-            
 
 
 
+
+
+        }
+        
+        public string Check_Node(HtmlNode node, string description, string objectclass)
+        {
+            return null;
         }
         public void Fetch_SCP_Library()
         {
             string html;
             string source = "https://scp-wiki.wikidot.com";
             int scp_series = 0;
+            WebClient wc = new WebClient();
+            HtmlDocument doc = new HtmlDocument();
             //string content = "";
             /*HtmlDocument document = new HtmlDocument();
             foreach (HtmlNode paragraph in document.DocumentNode.SelectNodes("//p"))
@@ -55,24 +62,59 @@ namespace F2M6PROG
                 content += paragraph.InnerText;
             }
             Console.WriteLine(content);*/
-            WebClient wc = new WebClient();
-            HtmlDocument doc = new HtmlDocument();
-            html = wc.DownloadString("https://scp-wiki.wikidot.com/scp-002");
-            doc.LoadHtml(html);
+            for (int scp_count = 1; scp_count < 5;)
+            {
+                string desc = null;
+                string objectclass = null;
 
-            string desc = doc.DocumentNode.SelectSingleNode("/html/body/div[1]/div/div[1]/div/div[2]/div[2]/div[3]/p[4]/text()").InnerText;
+                html = wc.DownloadString($"{source}/scp-{scp_count.ToString().PadLeft(3, '0')}");
+                Console.WriteLine($"{source}/scp-{scp_count.ToString().PadLeft(3, '0')}");
+                doc.LoadHtml(html);
 
-            Console.WriteLine(desc);
+                HtmlNode page_content_node = doc.GetElementbyId("page-content");
 
- 
+                foreach(HtmlNode node in page_content_node.SelectNodes("//p"))
+                {
+                    if(node.InnerText.Contains("Description") || node.InnerText.Contains("description"))
+                    {
+                        desc = node.InnerText;
+                        break;
+                    }
+                    if (node.InnerText.Contains("Objectclass"))
+                    {
+                        objectclass = node.InnerText;
+                    }
+                    
+                }
+                if (desc != null)
+                {
+                    Console.WriteLine(desc);
+                }
+                if (objectclass != null)
+                {
+                    Console.WriteLine(objectclass);
+                }
+
+                scp_count++;
+            }
+            /*if (doc.DocumentNode.SelectSingleNode("/html/body/div[1]/div/div[1]/div/div[2]/div[2]/div[3]/p[6]/text()") != null)
+            {
+                desc = doc.DocumentNode.SelectSingleNode("/html/body/div[1]/div/div[1]/div/div[2]/div[2]/div[3]/p[6]/text()").InnerText;
+            }
+            else
+            {
+                desc = "[ERROR]";
+            }*/
+            
+        }
+        
+    
+
+
 
         }
 
-                /*for (int scp_count = 0; scp_count < 1000;)
-            {
-                Console.WriteLine(scp_count.ToString().PadLeft(3,'0'));
-                scp_count++;
-            }*?
+                
             
             
                 
@@ -101,5 +143,5 @@ namespace F2M6PROG
         //sort from number
         
        
-    }
-}
+    
+

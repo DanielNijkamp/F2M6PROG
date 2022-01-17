@@ -6,7 +6,7 @@ namespace F2M6PROG
 {
     public abstract class SCP
     {
-        public string Name { get; private set; }
+        public int Name { get; private set; }
         public int AccessLevel { get; private set; }
         public ObjectClass currentclass{get; private set;}
 
@@ -21,7 +21,7 @@ namespace F2M6PROG
         }
         
 
-        protected SCP(string name, int acceslevel)
+        protected SCP(int name, int acceslevel)
         {
             this.Name = name;
             this.AccessLevel = acceslevel;
