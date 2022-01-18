@@ -60,11 +60,10 @@ namespace F2M6PROG
                 content += paragraph.InnerText;
             }
             Console.WriteLine(content);*/
-            for (int scp_count = 1; scp_count < 5;)
+            for (int scp_count = 1; scp_count < 3;)
             {
                 string desc = null;
                 string objectclass = null;
-                string name = null;
                 string scp_proc = null;
                 html = wc.DownloadString($"{source}/scp-{scp_count.ToString().PadLeft(3, '0')}");
                 Console.WriteLine($"{source}/scp-{scp_count.ToString().PadLeft(3, '0')}");
@@ -80,28 +79,24 @@ namespace F2M6PROG
                         {
                             desc = node.InnerText;
                         }
+                        else if (node.InnerText.Contains("Special Containment Procedures"))
+                        {
+                            scp_proc = node.InnerText;
+                        }
                         else if (node.InnerText.Contains("Object Class"))
                         {
                             objectclass = node.InnerText;
                         }
-                        else if (node.InnerText.Contains("Item"))
-                        {
-                            name = node.InnerText;
-                        }
                         
-                    }
-                    
-                    
-                                        
+                    }                   
                 }
-                if (desc != null)
+                if (desc != null && objectclass != null && scp_proc != null)
                 {
+                    Console.WriteLine($"Retrieved Object [SCP-{scp_count.ToString().PadLeft(3, '0')}], object class [{objectclass}]. all information fetched");
                     Console.WriteLine(desc);
+                    Console.WriteLine(scp_proc);
                 }
-                if (objectclass != null)
-                {
-                    Console.WriteLine(objectclass);
-                }
+
 
                 scp_count++;
             }
