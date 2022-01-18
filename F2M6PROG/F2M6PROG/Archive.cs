@@ -11,6 +11,7 @@ namespace F2M6PROG
 {
     class Archive
     {
+        
         //permission level
         //Series 1 THROUGH 7
         //Class: safe, euclid, keter, thaumiel, neutralized, explained, apollyon
@@ -44,10 +45,7 @@ namespace F2M6PROG
 
         }
         
-        public string Check_Node(HtmlNode node, string description, string objectclass)
-        {
-            return null;
-        }
+        
         public void Fetch_SCP_Library()
         {
             string html;
@@ -66,7 +64,8 @@ namespace F2M6PROG
             {
                 string desc = null;
                 string objectclass = null;
-
+                string name = null;
+                string scp_proc = null;
                 html = wc.DownloadString($"{source}/scp-{scp_count.ToString().PadLeft(3, '0')}");
                 Console.WriteLine($"{source}/scp-{scp_count.ToString().PadLeft(3, '0')}");
                 doc.LoadHtml(html);
@@ -75,16 +74,25 @@ namespace F2M6PROG
 
                 foreach(HtmlNode node in page_content_node.SelectNodes("//p"))
                 {
-                    if(node.InnerText.Contains("Description") || node.InnerText.Contains("description"))
+                    if (desc == null)
                     {
-                        desc = node.InnerText;
-                        break;
-                    }
-                    if (node.InnerText.Contains("Objectclass"))
-                    {
-                        objectclass = node.InnerText;
+                        if (node.InnerText.Contains("Description"))
+                        {
+                            desc = node.InnerText;
+                        }
+                        else if (node.InnerText.Contains("Object Class"))
+                        {
+                            objectclass = node.InnerText;
+                        }
+                        else if (node.InnerText.Contains("Item"))
+                        {
+                            name = node.InnerText;
+                        }
+                        
                     }
                     
+                    
+                                        
                 }
                 if (desc != null)
                 {
