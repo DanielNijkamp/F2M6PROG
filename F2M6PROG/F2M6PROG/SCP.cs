@@ -4,31 +4,25 @@ using System.Text;
 
 namespace F2M6PROG
 {
-    public abstract class SCP
+    public class SCP
     {
-        public string Name { get; private set; }
-        public int AccessLevel { get; private set; }
-        public ObjectClass currentclass{get; private set;}
+        public string Name;
+        public string Description;
+        public string SCP_procedure;
+        public int AccessLevel;
+        public string Objectclass{get; private set;}
 
      
-        public enum ObjectClass
-        {
-            Safe,
-            Euclid,
-            Keter,
-            Thaumiel,
-            Apollyon,
-        }
         
 
-        protected SCP(string name, int acceslevel)
+        public SCP(string name, int acceslevel,string inputclass ,string procedure, string description)
         {
             this.Name = name;
             this.AccessLevel = acceslevel;
+            this.Description = description;
+            this.SCP_procedure = procedure;
+            this.Objectclass = inputclass;
         }
-        public abstract void Show_Description();
-
-        public abstract void Show_Special_Containment_Procedures();
 
 
         /*public enum GameState

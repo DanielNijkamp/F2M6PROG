@@ -20,11 +20,11 @@ namespace F2M6PROG
 
         List<List<SCP>> SCP_Series = new List<List<SCP>>();
 
-        public void AddSCP()
+        public void AddSCP(SCP scp)
         {
 
         }
-        public void RemoveSCP()
+        public void RemoveSCP(SCP scp)
         {
 
         }
@@ -36,7 +36,7 @@ namespace F2M6PROG
         {
 
         }
-        public void Get_Specific_SCP()
+        public void Get_Specific_SCP(int position)
         {
 
 
@@ -65,6 +65,7 @@ namespace F2M6PROG
                 string desc = null;
                 string objectclass = null;
                 string scp_proc = null;
+                string name = $"SCP-{scp_count.ToString().PadLeft(3, '0')}";
                 html = wc.DownloadString($"{source}/scp-{scp_count.ToString().PadLeft(3, '0')}");
                 Console.WriteLine($"{source}/scp-{scp_count.ToString().PadLeft(3, '0')}");
                 doc.LoadHtml(html);
@@ -90,24 +91,17 @@ namespace F2M6PROG
                         
                     }                   
                 }
+                
+                SCP generated_scp = new SCP(name, 5, objectclass, scp_proc, desc);
                 if (desc != null && objectclass != null && scp_proc != null)
                 {
-                    Console.WriteLine($"Retrieved Object [SCP-{scp_count.ToString().PadLeft(3, '0')}], object class [{objectclass}]. all information fetched");
+                    Console.WriteLine($"Retrieved Object [{generated_scp.Name}], object class [{generated_scp.Objectclass}]. all information fetched{Environment.NewLine}");
                     Console.WriteLine(desc);
                     Console.WriteLine(scp_proc);
                 }
-
-
                 scp_count++;
             }
-            /*if (doc.DocumentNode.SelectSingleNode("/html/body/div[1]/div/div[1]/div/div[2]/div[2]/div[3]/p[6]/text()") != null)
-            {
-                desc = doc.DocumentNode.SelectSingleNode("/html/body/div[1]/div/div[1]/div/div[2]/div[2]/div[3]/p[6]/text()").InnerText;
-            }
-            else
-            {
-                desc = "[ERROR]";
-            }*/
+            
             
         }
         
