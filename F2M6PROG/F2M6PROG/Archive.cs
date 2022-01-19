@@ -5,13 +5,15 @@ using System.Threading.Tasks;
 using System.Net;
 using System.IO;
 using HtmlAgilityPack;
+using System.Threading;
+using System.Collections.Concurrent;
 
 
 namespace F2M6PROG
 {
     class Archive
     {
-        
+
         //permission level
         //Series 1 THROUGH 7
         //Class: safe, euclid, keter, thaumiel, neutralized, explained, apollyon
@@ -44,8 +46,8 @@ namespace F2M6PROG
 
 
         }
-        
-        
+
+
         public void Fetch_SCP_Library()
         {
             string html;
@@ -55,8 +57,9 @@ namespace F2M6PROG
             int cycle_count = 0;
             WebClient wc = new WebClient();
             HtmlDocument doc = new HtmlDocument();
-            
-            for (int x = scp_series; x < 8;) 
+            wc.Proxy = null;
+
+            for (int x = scp_series; x < 8;)
             {
                 List<SCP> scp_series_list = new List<SCP>();
                 switch (scp_series) // determines scp_series and how much to generate
@@ -91,75 +94,71 @@ namespace F2M6PROG
                         break;
 
                 }
+                
                 for (int scp_count = current_scp_count; scp_count < cycle_count;)
                 {
-                    
+
                     string desc = null;
                     string objectclass = null;
                     string scp_proc = null;
 
+
                     //variables set as null for now, values will be assigned later in the function
 
                     string name = $"SCP-{scp_count.ToString().PadLeft(3, '0')}";
-                    html = wc.DownloadString($"{source}/scp-{scp_count.ToString().PadLeft(3, '0')}");
-                    //Console.WriteLine($"{source}/scp-{scp_count.ToString().PadLeft(3, '0')}");
-                    doc.LoadHtml(html);
+                    html = wc.DownloadString($"{source}/scp-{scp_count.ToString().PadLeft(3, '0')}"); // needs to be optimized
+                    doc.LoadHtml(html); // needs to be optimized
 
                     HtmlNode page_content_node = doc.GetElementbyId("page-content"); // page content div
-
                     foreach (HtmlNode node in page_content_node.SelectNodes("//p")) // loops through <p> divs that are children of page content div
                     {
-                        if (desc == null)
+                        switch (node.InnerText)
                         {
-                            if (node.InnerText.Contains("Description"))
-                            {
+                            case string a when a.Contains("Description"):
                                 desc = node.InnerText;
-                            }
-                            else if (node.InnerText.Contains("Special Containment Procedures"))
-                            {
+                                break;
+                            case string b when b.Contains("Special Containment Procedures"):
                                 scp_proc = node.InnerText;
-                            }
-                            else if (node.InnerText.Contains("Object Class"))
-                            {
+                                break;
+                            case string c when c.Contains("Object Class"):
                                 objectclass = node.InnerText;
-                            }
-
+                                break;
                         }
+                    
                     }
-                    SCP generated_scp = new SCP(name, 5, objectclass, scp_proc, desc);
-                    if (desc != null && objectclass != null && scp_proc != null)
-                    {
-                        Console.WriteLine($"Retrieved Object [{generated_scp.Name}]");
-                        scp_series_list.Add(generated_scp);
-                    }
-                    else
-                    {
-                        Console.WriteLine("DATA EXPUNGED");
-                        scp_series_list.Add(null);
-                    }
-                    scp_count++;
+                SCP generated_scp = new SCP(name, 5, objectclass, scp_proc, desc);
+                if (desc != null && objectclass != null && scp_proc != null)
+                {
+                    Console.WriteLine($"Retrieved Object [{generated_scp.Name}]");
+                    scp_series_list.Add(generated_scp);
                 }
-                SCP_Series.Add(scp_series_list);
-                scp_series++;
-
+                else
+                {
+                    Console.WriteLine("DATA EXPUNGED");
+                    scp_series_list.Add(null);
+                }
+                scp_count++;
+            }
+            SCP_Series.Add(scp_series_list);
+            Console.WriteLine(SCP_Series.Count);
+            scp_series++;
+                    
+                }
 
             }
-            
-            
-            
+
+
+
         }
-        
+
+          
+    }
     
-        
-
-
-        }
-
                 
             
             
                 
-        }
+
 
 
         /*private List<SCP> SCPS = new List<SCP>();
