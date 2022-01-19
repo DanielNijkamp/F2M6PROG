@@ -49,64 +49,108 @@ namespace F2M6PROG
         public void Fetch_SCP_Library()
         {
             string html;
-            string source = "https://scp-wiki.wikidot.com";
-            int scp_series = 0;
+            string source = "https://scp-wiki.wikidot.com"; // url to website 
+            int scp_series = 1;
+            int current_scp_count = 0;
+            int cycle_count = 0;
             WebClient wc = new WebClient();
             HtmlDocument doc = new HtmlDocument();
-            //string content = "";
-            /*HtmlDocument document = new HtmlDocument();
-            foreach (HtmlNode paragraph in document.DocumentNode.SelectNodes("//p"))
+            
+            for (int x = scp_series; x < 8;) 
             {
-                content += paragraph.InnerText;
-            }
-            Console.WriteLine(content);*/
-            for (int scp_count = 1; scp_count < 3;)
-            {
-                string desc = null;
-                string objectclass = null;
-                string scp_proc = null;
-                string name = $"SCP-{scp_count.ToString().PadLeft(3, '0')}";
-                html = wc.DownloadString($"{source}/scp-{scp_count.ToString().PadLeft(3, '0')}");
-                Console.WriteLine($"{source}/scp-{scp_count.ToString().PadLeft(3, '0')}");
-                doc.LoadHtml(html);
-
-                HtmlNode page_content_node = doc.GetElementbyId("page-content");
-
-                foreach(HtmlNode node in page_content_node.SelectNodes("//p"))
+                List<SCP> scp_series_list = new List<SCP>();
+                switch (scp_series) // determines scp_series and how much to generate
                 {
-                    if (desc == null)
+                    case 1:
+                        cycle_count = 1000;
+                        current_scp_count = 1;
+                        break;
+                    case 2:
+                        cycle_count = 2000;
+                        current_scp_count = 1000;
+                        break;
+                    case 3:
+                        cycle_count = 3000;
+                        current_scp_count = 2000;
+                        break;
+                    case 4:
+                        cycle_count = 4000;
+                        current_scp_count = 3000;
+                        break;
+                    case 5:
+                        cycle_count = 5000;
+                        current_scp_count = 4000;
+                        break;
+                    case 6:
+                        cycle_count = 6000;
+                        current_scp_count = 5000;
+                        break;
+                    case 7:
+                        cycle_count = 7000;
+                        current_scp_count = 6000;
+                        break;
+
+                }
+                for (int scp_count = current_scp_count; scp_count < cycle_count;)
+                {
+                    
+                    string desc = null;
+                    string objectclass = null;
+                    string scp_proc = null;
+
+                    //variables set as null for now, values will be assigned later in the function
+
+                    string name = $"SCP-{scp_count.ToString().PadLeft(3, '0')}";
+                    html = wc.DownloadString($"{source}/scp-{scp_count.ToString().PadLeft(3, '0')}");
+                    //Console.WriteLine($"{source}/scp-{scp_count.ToString().PadLeft(3, '0')}");
+                    doc.LoadHtml(html);
+
+                    HtmlNode page_content_node = doc.GetElementbyId("page-content"); // page content div
+
+                    foreach (HtmlNode node in page_content_node.SelectNodes("//p")) // loops through <p> divs that are children of page content div
                     {
-                        if (node.InnerText.Contains("Description"))
+                        if (desc == null)
                         {
-                            desc = node.InnerText;
+                            if (node.InnerText.Contains("Description"))
+                            {
+                                desc = node.InnerText;
+                            }
+                            else if (node.InnerText.Contains("Special Containment Procedures"))
+                            {
+                                scp_proc = node.InnerText;
+                            }
+                            else if (node.InnerText.Contains("Object Class"))
+                            {
+                                objectclass = node.InnerText;
+                            }
+
                         }
-                        else if (node.InnerText.Contains("Special Containment Procedures"))
-                        {
-                            scp_proc = node.InnerText;
-                        }
-                        else if (node.InnerText.Contains("Object Class"))
-                        {
-                            objectclass = node.InnerText;
-                        }
-                        
-                    }                   
+                    }
+                    SCP generated_scp = new SCP(name, 5, objectclass, scp_proc, desc);
+                    if (desc != null && objectclass != null && scp_proc != null)
+                    {
+                        Console.WriteLine($"Retrieved Object [{generated_scp.Name}]");
+                        scp_series_list.Add(generated_scp);
+                    }
+                    else
+                    {
+                        Console.WriteLine("DATA EXPUNGED");
+                        scp_series_list.Add(null);
+                    }
+                    scp_count++;
                 }
-                
-                SCP generated_scp = new SCP(name, 5, objectclass, scp_proc, desc);
-                if (desc != null && objectclass != null && scp_proc != null)
-                {
-                    Console.WriteLine($"Retrieved Object [{generated_scp.Name}], object class [{generated_scp.Objectclass}]. all information fetched{Environment.NewLine}");
-                    Console.WriteLine(desc);
-                    Console.WriteLine(scp_proc);
-                }
-                scp_count++;
+                SCP_Series.Add(scp_series_list);
+                scp_series++;
+
+
             }
+            
             
             
         }
         
     
-
+        
 
 
         }
