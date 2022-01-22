@@ -94,14 +94,13 @@ namespace F2M6PROG
                         break;
 
                 }
-                
                 for (int scp_count = current_scp_count; scp_count < cycle_count;)
                 {
 
                     string desc = null;
                     string objectclass = null;
                     string scp_proc = null;
-
+                    int security_level = 0;
 
                     //variables set as null for now, values will be assigned later in the function
 
@@ -126,8 +125,28 @@ namespace F2M6PROG
                         }
                     
                     }
-                SCP generated_scp = new SCP(name, 5, objectclass, scp_proc, desc);
-                if (desc != null && objectclass != null && scp_proc != null)
+                    Random rnd = new Random();
+                    switch (objectclass)
+                    {
+                        case string a when a.Contains("Safe"):
+                            security_level = rnd.Next(0,1);
+                            break;
+                        case string b when b.Contains("Euclid"):
+                            security_level = rnd.Next(1, 3);
+                            break;
+                        case string c when c.Contains("Keter"):
+                            security_level = rnd.Next(2, 4);
+                            break;
+                        case string d when d.Contains("Thaumiel"):
+                            security_level = rnd.Next(3, 5);
+                            break;
+                        case string e when e.Contains("Apollyon"):
+                            security_level = rnd.Next(4, 5);
+                            break;
+                    } // assigns random SCP access level based on object class
+
+                    SCP generated_scp = new SCP(name, security_level, objectclass, scp_proc, desc); // instantiates new SCP class
+                if (desc != null && objectclass != null && scp_proc != null) // if values are not null: confirm that SCP class has been generated with values and add SCP to a list
                 {
                     Console.WriteLine($"Retrieved Object [{generated_scp.Name}]");
                     scp_series_list.Add(generated_scp);
@@ -139,8 +158,8 @@ namespace F2M6PROG
                 }
                 scp_count++;
             }
-            SCP_Series.Add(scp_series_list);
-            Console.WriteLine(SCP_Series.Count);
+            SCP_Series.Add(scp_series_list); // add the local SCP list to SCP_SERIES so user can explore the individual series
+            Console.WriteLine(SCP_Series.Count); 
             scp_series++;
                     
                 }
