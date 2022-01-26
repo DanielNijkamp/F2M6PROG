@@ -97,23 +97,25 @@ namespace F2M6PROG
                 for (int scp_count = current_scp_count; scp_count < cycle_count;)
                 {
                     var task = GenerateSCP(source,scp_count,doc);
-                    if (task.IsCompleted)
+                    try
                     {
                         if (task.Result != null)
                         {
-                            if (task.Result.Item1.Contains("Description"))
-                            {
-                                Console.WriteLine($"test{scp_count}");
-                            }
+                            Console.WriteLine($"test{scp_count}");
+                            scp_series_list.Add(task.Result);
                         }
                         else
                         {
                             scp_series_list.Add(null);
+                            Console.WriteLine($"DATA EXPUNGED [{scp_count.ToString().PadLeft(3, '0')} ]");
                         }
-
+                    }
+                    catch (AggregateException e) 
+                    {
+                        Console.WriteLine(e.Message);
                     }
                     
-                    
+
                     /*if (task.Result.Item1.Count == 2) // if values are not null: confirm that SCP class has been generated with values and add SCP to a list
                     {
                         Console.WriteLine($"Retrieved Object [SCP-{scp_count.ToString().PadLeft(3, '0')}");
@@ -139,11 +141,11 @@ namespace F2M6PROG
 
             }
 
-        public async Task<Tuple<List<string>, SCP>> GenerateSCP(string source, int scp_count, HtmlDocument doc)
+        public async Task<SCP> GenerateSCP(string source, int scp_count, HtmlDocument doc)
         {
             int security_level = 0;
             Random rnd = new Random();
-            List<string> return_variables = new List<string>();
+            List<string> scp_values = new List<string>();
             string scp_link = $"{source}/scp-{scp_count.ToString().PadLeft(3, '0')}";
             Uri link = new Uri(scp_link, UriKind.Absolute);
             using (var client = new HttpClient())
@@ -163,11 +165,7 @@ namespace F2M6PROG
                     Console.WriteLine("NULL EXCEPTION ERROR");
                     return null;
                 }
-                catch (NullReferenceException)
-                {
-                    Console.WriteLine("NULL REFERENCE ERROR");
-                    return null;
-                }
+                
             }
             HtmlNode page_content_node =  doc.GetElementbyId("page-content"); // page content div
             foreach (HtmlNode node in page_content_node.SelectNodes("//p")) // loops through <p> divs that are children of page content div
@@ -175,18 +173,18 @@ namespace F2M6PROG
                 switch (node.InnerText)
                 {
                     case string a when a.Contains("Description"):
-                        return_variables.Add(node.InnerText);
+                        scp_values.Add(node.InnerText);
                         break;
                     case string b when b.Contains("Special Containment Procedures"):
-                        return_variables.Add(node.InnerText);
+                        scp_values.Add(node.InnerText);
                         break;
                     case string c when c.Contains("Object Class"):
-                        return_variables.Add(node.InnerText);
+                        scp_values.Add(node.InnerText);
                         break;
                 }
             }
             string name = $"SCP-{scp_count.ToString().PadLeft(3, '0')}";
-            switch (return_variables.ToArray()[2])
+            switch (scp_values.ToArray()[2])
             {
                 case string a when a.Contains("Safe"):
                     security_level = rnd.Next(0, 1);
@@ -204,8 +202,8 @@ namespace F2M6PROG
                     security_level = rnd.Next(4, 5);
                     break;
             } // assigns random SCP access level based on object class
-            SCP generated_scp = new SCP(name, security_level, return_variables.ToArray()[2], return_variables.ToArray()[1], return_variables.ToArray()[0]);
-            return Tuple.Create(return_variables, generated_scp);
+            SCP generated_scp = new SCP(name, security_level, scp_values.ToArray()[2], scp_values.ToArray()[1], scp_values.ToArray()[0]);
+            return generated_scp;
 
 
         }
