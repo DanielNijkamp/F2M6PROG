@@ -55,9 +55,7 @@ namespace F2M6PROG
             int scp_series = 1;
             int current_scp_count = 0;
             int cycle_count = 0;
-            WebClient wc = new WebClient();
             HtmlDocument doc = new HtmlDocument();
-            wc.Proxy = null;
 
             for (int x = scp_series; x < 8;)
             {
@@ -96,8 +94,8 @@ namespace F2M6PROG
                 }// determines scp_series and how much to generate
                 for (int scp_count = current_scp_count; scp_count < cycle_count;)
                 {
-                    var task = GenerateSCP(source,scp_count,doc);
-                    try
+                    var task = GenerateSCP(source,scp_count, doc);
+                    if (task.IsCompleted)
                     {
                         if (task.Result != null)
                         {
@@ -110,27 +108,6 @@ namespace F2M6PROG
                             Console.WriteLine($"DATA EXPUNGED [{scp_count.ToString().PadLeft(3, '0')} ]");
                         }
                     }
-                    catch (AggregateException e) 
-                    {
-                        Console.WriteLine(e.Message);
-                    }
-                    
-
-                    /*if (task.Result.Item1.Count == 2) // if values are not null: confirm that SCP class has been generated with values and add SCP to a list
-                    {
-                        Console.WriteLine($"Retrieved Object [SCP-{scp_count.ToString().PadLeft(3, '0')}");
-                        scp_series_list.Add(task.Result.Item2);
-                    }
-                    else
-                    {
-                        Console.WriteLine("DATA EXPUNGED");
-                        scp_series_list.Add(null);
-                    }*/
-
-
-
-
-
                     scp_count++;
             }
             SCP_Series.Add(scp_series_list); // add the local SCP list to SCP_SERIES so user can explore the individual series
@@ -143,31 +120,40 @@ namespace F2M6PROG
 
         public async Task<SCP> GenerateSCP(string source, int scp_count, HtmlDocument doc)
         {
+            //variables
             int security_level = 0;
             Random rnd = new Random();
             List<string> scp_values = new List<string>();
+
+            //link
             string scp_link = $"{source}/scp-{scp_count.ToString().PadLeft(3, '0')}";
             Uri link = new Uri(scp_link, UriKind.Absolute);
+
+            //http stuff
+            /*HttpClientHandler hch = new HttpClientHandler();
+            hch.Proxy = null;
+            hch.UseProxy = false;*/
             using (var client = new HttpClient())
             {
                 try
                 {
                     var html = await client.GetStringAsync(link);
-                    doc.LoadHtml(html);
+                    if (html != null)
+                    {
+                        doc.LoadHtml(html);
+                    }
+                    else
+                    {
+                        return null;
+                    }
                 }
-                catch(HttpRequestException)
+                catch (HttpRequestException)
                 {
                     Console.WriteLine("HTTP ERROR");
                     return null;
                 }
-                catch(ArgumentNullException)
-                {
-                    Console.WriteLine("NULL EXCEPTION ERROR");
-                    return null;
-                }
-                
             }
-            HtmlNode page_content_node =  doc.GetElementbyId("page-content"); // page content div
+            HtmlNode page_content_node = doc.GetElementbyId("page-content"); // page content div
             foreach (HtmlNode node in page_content_node.SelectNodes("//p")) // loops through <p> divs that are children of page content div
             {
                 switch (node.InnerText)
