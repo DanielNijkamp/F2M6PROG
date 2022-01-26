@@ -8,13 +8,14 @@ using HtmlAgilityPack;
 using System.Threading;
 using System.Collections.Concurrent;
 using System.Net.Http;
+using System.Diagnostics;
 
 
 namespace F2M6PROG
 {
     class Archive
     {
-
+        string source = "https://scp-wiki.wikidot.com";
         //permission level
         //Series 1 THROUGH 7
         //Class: safe, euclid, keter, thaumiel, neutralized, explained, apollyon
@@ -51,152 +52,164 @@ namespace F2M6PROG
 
         public void Fetch_SCP_Library()
         {
-            string source = "https://scp-wiki.wikidot.com"; // url to website 
+            Stopwatch stopwatch = new Stopwatch();
             int scp_series = 1;
-            int current_scp_count = 0;
+            int start_counting_point = 0;
             int cycle_count = 0;
-            HtmlDocument doc = new HtmlDocument();
+            
 
-            for (int x = scp_series; x < 8;)
+            for (int x = scp_series; scp_series < 8;)
             {
+                stopwatch.Start();
                 List<SCP> scp_series_list = new List<SCP>();
                 switch (scp_series) 
                 {
                     case 1:
                         cycle_count = 1000;
-                        current_scp_count = 1;
+                        start_counting_point = 1;
                         break;
                     case 2:
                         cycle_count = 2000;
-                        current_scp_count = 1000;
+                        start_counting_point = 1000;
                         break;
                     case 3:
                         cycle_count = 3000;
-                        current_scp_count = 2000;
+                        start_counting_point = 2000;
                         break;
                     case 4:
                         cycle_count = 4000;
-                        current_scp_count = 3000;
+                        start_counting_point = 3000;
                         break;
                     case 5:
                         cycle_count = 5000;
-                        current_scp_count = 4000;
+                        start_counting_point = 4000;
                         break;
                     case 6:
                         cycle_count = 6000;
-                        current_scp_count = 5000;
+                        start_counting_point = 5000;
                         break;
                     case 7:
                         cycle_count = 7000;
-                        current_scp_count = 6000;
+                        start_counting_point = 6000;
                         break;
 
                 }// determines scp_series and how much to generate
-                for (int scp_count = current_scp_count; scp_count < cycle_count;)
+                for (int scp_count = start_counting_point; scp_count < cycle_count;)
                 {
-                    var task = GenerateSCP(source,scp_count, doc);
-                    if (task.IsCompleted)
+                    try
                     {
-                        if (task.Result != null)
+                        scp_series_list.Add(GenerateSCP(scp_count).Result);
+                    }
+                    catch(Exception exc)
+                    {
+                        Console.WriteLine(exc.Message);
+                    }
+                    //Console.WriteLine($"Series: {scp_series} Current:{start_counting_point}, count:{scp_count}");
+                    
+
+
+                    //start task with current scp count
+                    //if all tasks are complete add to list in order
+                    scp_count++;
+                }
+            SCP_Series.Add(scp_series_list); // add the local SCP list to SCP_SERIES so user can explore the individual series
+            Console.WriteLine($"SCP_SERIES LIST COUNT IS: {SCP_Series.Count}"); 
+            scp_series++;
+            x++;
+            }
+            stopwatch.Stop();
+            Console.WriteLine($"Completed within: [{stopwatch.Elapsed.Seconds}.{stopwatch.Elapsed.Milliseconds}] Seconds");
+        }
+
+        public async Task<SCP> GenerateSCP(int scp_count)
+        {
+                HtmlDocument doc = new HtmlDocument();
+                int security_level = 0;
+                Random rnd = new Random();
+                string desc = null;
+                string objectclass = null;
+                string proc = null;
+
+                //link
+                string scp_link = $"{source}/scp-{scp_count.ToString().PadLeft(3, '0')}";
+                Uri link = new Uri(scp_link, UriKind.Absolute);
+
+                //http stuff
+                HttpClientHandler hch = new HttpClientHandler();
+                hch.Proxy = null;
+                hch.UseProxy = false;
+                hch.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => { return true; };
+                using (var client = new HttpClient(hch))
+                {
+                    try
+                    {
+                        var html = await client.GetStringAsync(link);
+                        if (html != null)
                         {
-                            Console.WriteLine($"test{scp_count}");
-                            scp_series_list.Add(task.Result);
+                            doc.LoadHtml(html);
                         }
                         else
                         {
-                            scp_series_list.Add(null);
-                            Console.WriteLine($"DATA EXPUNGED [{scp_count.ToString().PadLeft(3, '0')} ]");
+                            return null;
                         }
                     }
-                    scp_count++;
-            }
-            SCP_Series.Add(scp_series_list); // add the local SCP list to SCP_SERIES so user can explore the individual series
-            Console.WriteLine(SCP_Series.Count); 
-            scp_series++;
-                    
-                }
-
-            }
-
-        public async Task<SCP> GenerateSCP(string source, int scp_count, HtmlDocument doc)
-        {
-            //variables
-            int security_level = 0;
-            Random rnd = new Random();
-            List<string> scp_values = new List<string>();
-
-            //link
-            string scp_link = $"{source}/scp-{scp_count.ToString().PadLeft(3, '0')}";
-            Uri link = new Uri(scp_link, UriKind.Absolute);
-
-            //http stuff
-            /*HttpClientHandler hch = new HttpClientHandler();
-            hch.Proxy = null;
-            hch.UseProxy = false;*/
-            using (var client = new HttpClient())
-            {
-                try
-                {
-                    var html = await client.GetStringAsync(link);
-                    if (html != null)
+                    catch (HttpRequestException exc)
                     {
-                        doc.LoadHtml(html);
-                    }
-                    else
-                    {
+                        Console.WriteLine($"[{scp_link}]{exc.InnerException.Message}");
                         return null;
                     }
                 }
-                catch (HttpRequestException)
+                HtmlNode page_content_node = doc.GetElementbyId("page-content"); // page content div
+                foreach (HtmlNode node in page_content_node.SelectNodes("//p")) // loops through <p> divs that are children of page content div
                 {
-                    Console.WriteLine("HTTP ERROR");
-                    return null;
+                    switch (node.InnerText)
+                    {
+                        case string a when a.Contains("Description"):
+                        desc = node.InnerText;
+                            break;
+                        case string b when b.Contains("Special Containment Procedures"):
+                        proc = node.InnerText;
+                            break;
+                        case string c when c.Contains("Object Class"):
+                        objectclass = node.InnerText;
+                            break;
+                    }
                 }
-            }
-            HtmlNode page_content_node = doc.GetElementbyId("page-content"); // page content div
-            foreach (HtmlNode node in page_content_node.SelectNodes("//p")) // loops through <p> divs that are children of page content div
-            {
-                switch (node.InnerText)
+                string name = $"SCP-{scp_count.ToString().PadLeft(3, '0')}";
+                switch (objectclass)
                 {
-                    case string a when a.Contains("Description"):
-                        scp_values.Add(node.InnerText);
+                    case string a when a.Contains("Safe"):
+                        security_level = rnd.Next(0, 1);
                         break;
-                    case string b when b.Contains("Special Containment Procedures"):
-                        scp_values.Add(node.InnerText);
+                    case string b when b.Contains("Euclid"):
+                        security_level = rnd.Next(1, 3);
                         break;
-                    case string c when c.Contains("Object Class"):
-                        scp_values.Add(node.InnerText);
+                    case string c when c.Contains("Keter"):
+                        security_level = rnd.Next(2, 4);
                         break;
+                    case string d when d.Contains("Thaumiel"):
+                        security_level = rnd.Next(3, 5);
+                        break;
+                    case string e when e.Contains("Apollyon"):
+                        security_level = rnd.Next(4, 5);
+                        break;
+                } // assigns random SCP access level based on object class
+                SCP generated_scp = new SCP(name, security_level, objectclass, proc, desc);
+                if (generated_scp != null)
+                {
+                Console.WriteLine($"Name: [{generated_scp.Name}] LV:[{generated_scp.AccessLevel}] Class: [{generated_scp.Objectclass}]");
                 }
+                return generated_scp;
             }
-            string name = $"SCP-{scp_count.ToString().PadLeft(3, '0')}";
-            switch (scp_values.ToArray()[2])
-            {
-                case string a when a.Contains("Safe"):
-                    security_level = rnd.Next(0, 1);
-                    break;
-                case string b when b.Contains("Euclid"):
-                    security_level = rnd.Next(1, 3);
-                    break;
-                case string c when c.Contains("Keter"):
-                    security_level = rnd.Next(2, 4);
-                    break;
-                case string d when d.Contains("Thaumiel"):
-                    security_level = rnd.Next(3, 5);
-                    break;
-                case string e when e.Contains("Apollyon"):
-                    security_level = rnd.Next(4, 5);
-                    break;
-            } // assigns random SCP access level based on object class
-            SCP generated_scp = new SCP(name, security_level, scp_values.ToArray()[2], scp_values.ToArray()[1], scp_values.ToArray()[0]);
-            return generated_scp;
+            
+            
 
 
         }
         }
 
           
-    }
+    
     
                 
             
