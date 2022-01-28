@@ -59,7 +59,7 @@ namespace F2M6PROG
             int cycle_count = 0;
 
             stopwatch.Start();
-            for (int x = scp_series; scp_series < 2;)
+            for (int x = scp_series; scp_series < 8;)
             {
                 List<SCP> scp_series_list = new List<SCP>();
                 switch (scp_series)
@@ -99,9 +99,7 @@ namespace F2M6PROG
                 {
                     var task = GenerateSCP(scp_count);
                     tasklist.Add(scp_count, task);
-                    //Console.WriteLine($"Series: {scp_series} Current:{start_counting_point}, count:{scp_count}");
-                    //start task with current scp count
-                    //if all tasks are complete add to list in order
+                    Thread.Sleep(0030);
                     scp_count++;
                 }
                 Task.WaitAll(tasklist.Values.ToArray());
@@ -116,7 +114,7 @@ namespace F2M6PROG
                 x++;
             }
             stopwatch.Stop();
-            Console.WriteLine($"Completed within: [{stopwatch.Elapsed.Seconds}.{stopwatch.Elapsed.Milliseconds}] Seconds");
+            Console.WriteLine($"Completed within: [{stopwatch.Elapsed}] Seconds");
             Console.WriteLine(SCP_Series[0].Count);
 
         }
@@ -134,6 +132,7 @@ namespace F2M6PROG
                 Uri link = new Uri(scp_link, UriKind.Absolute);
 
                 //http stuff
+                
                 HttpClientHandler hch = new HttpClientHandler();
                 hch.Proxy = null;
                 hch.UseProxy = false;
@@ -150,10 +149,10 @@ namespace F2M6PROG
                 client.DefaultRequestHeaders.TryAddWithoutValidation("Accept-Charset", "ISO-8859-1");
                 try
                     {
-                        var html = await client.GetStringAsync(link);
-                        if (html != null)
+                        var response = await client.GetStringAsync(link);
+                        if (response != null)
                         {
-                            doc.LoadHtml(html);
+                            doc.LoadHtml(response);
                         }
                         else
                         {
@@ -215,11 +214,9 @@ namespace F2M6PROG
                 
             }
             
-            
-
-
-        }
-        }
+       
+    }
+}
 
           
     

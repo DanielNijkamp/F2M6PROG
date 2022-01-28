@@ -23,7 +23,12 @@ namespace F2M6PROG
             Startup();
             DisplayFetchedUsers();
             Console.WriteLine($"Select which user you want to use {Environment.NewLine}");
+
+            //if json doesnt exist generate new library
             SCP_Archive.Fetch_SCP_Library();
+
+
+
             while (GettingsCurrentUser)
             {
                 GetCurrentUser(AskForInput());
@@ -47,7 +52,6 @@ namespace F2M6PROG
             while (AppRunning)
             {
                 
-
             } //actual app
         }
         public static bool Login(User user)
