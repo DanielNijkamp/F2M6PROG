@@ -9,6 +9,7 @@ using System.Threading;
 using System.Collections.Concurrent;
 using System.Net.Http;
 using System.Diagnostics;
+using System.Linq;
 
 
 namespace F2M6PROG
@@ -56,13 +57,12 @@ namespace F2M6PROG
             int scp_series = 1;
             int start_counting_point = 0;
             int cycle_count = 0;
-            
 
-            for (int x = scp_series; scp_series < 8;)
+            stopwatch.Start();
+            for (int x = scp_series; scp_series < 2;)
             {
-                stopwatch.Start();
                 List<SCP> scp_series_list = new List<SCP>();
-                switch (scp_series) 
+                switch (scp_series)
                 {
                     case 1:
                         cycle_count = 1000;
@@ -94,33 +94,32 @@ namespace F2M6PROG
                         break;
 
                 }// determines scp_series and how much to generate
+                Dictionary<int, Task<SCP>> tasklist = new Dictionary<int, Task<SCP>>();
                 for (int scp_count = start_counting_point; scp_count < cycle_count;)
                 {
-                    try
-                    {
-                        scp_series_list.Add(GenerateSCP(scp_count).Result);
-                    }
-                    catch(Exception exc)
-                    {
-                        Console.WriteLine(exc.Message);
-                    }
+                    var task = GenerateSCP(scp_count);
+                    tasklist.Add(scp_count, task);
                     //Console.WriteLine($"Series: {scp_series} Current:{start_counting_point}, count:{scp_count}");
-                    
-
-
                     //start task with current scp count
                     //if all tasks are complete add to list in order
                     scp_count++;
                 }
-            SCP_Series.Add(scp_series_list); // add the local SCP list to SCP_SERIES so user can explore the individual series
-            Console.WriteLine($"SCP_SERIES LIST COUNT IS: {SCP_Series.Count}"); 
-            scp_series++;
-            x++;
+                Task.WaitAll(tasklist.Values.ToArray());
+                tasklist.Keys.ToList().OrderBy(start_counting_point => cycle_count);
+                foreach (KeyValuePair<int, Task<SCP>> entry in tasklist)
+                {
+                    scp_series_list.Add(entry.Value.Result);
+                }
+                SCP_Series.Add(scp_series_list); // add the local SCP list to SCP_SERIES so user can explore the individual series
+                Console.WriteLine($"SCP_SERIES LIST COUNT IS: {SCP_Series.Count}");
+                scp_series++;
+                x++;
             }
             stopwatch.Stop();
             Console.WriteLine($"Completed within: [{stopwatch.Elapsed.Seconds}.{stopwatch.Elapsed.Milliseconds}] Seconds");
-        }
+            Console.WriteLine(SCP_Series[0].Count);
 
+        }
         public async Task<SCP> GenerateSCP(int scp_count)
         {
                 HtmlDocument doc = new HtmlDocument();
@@ -139,9 +138,17 @@ namespace F2M6PROG
                 hch.Proxy = null;
                 hch.UseProxy = false;
                 hch.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => { return true; };
+                ServicePointManager.SecurityProtocol = (SecurityProtocolType)3072;
+
                 using (var client = new HttpClient(hch))
                 {
-                    try
+                //set Accept headers
+
+                client.DefaultRequestHeaders.TryAddWithoutValidation("Accept","text/html,application/xhtml+xml,application/xml,application/json");
+                //set User agent
+                client.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", "Mozilla/5.0 (Windows NT 6.3; WOW64; Trident/7.0; EN; rv:11.0) like Gecko");
+                client.DefaultRequestHeaders.TryAddWithoutValidation("Accept-Charset", "ISO-8859-1");
+                try
                     {
                         var html = await client.GetStringAsync(link);
                         if (html != null)
@@ -153,9 +160,9 @@ namespace F2M6PROG
                             return null;
                         }
                     }
-                    catch (HttpRequestException exc)
+                    catch (Exception exc)
                     {
-                        Console.WriteLine($"[{scp_link}]{exc.InnerException.Message}");
+                        Console.WriteLine($"[{scp_link}]{exc.Message}");
                         return null;
                     }
                 }
@@ -195,11 +202,17 @@ namespace F2M6PROG
                         break;
                 } // assigns random SCP access level based on object class
                 SCP generated_scp = new SCP(name, security_level, objectclass, proc, desc);
-                if (generated_scp != null)
+                if (desc != null && objectclass != null && proc != null)
                 {
                 Console.WriteLine($"Name: [{generated_scp.Name}] LV:[{generated_scp.AccessLevel}] Class: [{generated_scp.Objectclass}]");
-                }
                 return generated_scp;
+                }
+                else
+                {
+                Console.WriteLine($"Error retrieving information about [SCP-{scp_count.ToString().PadLeft(3, '0')}]");
+                return null;
+                }
+                
             }
             
             
