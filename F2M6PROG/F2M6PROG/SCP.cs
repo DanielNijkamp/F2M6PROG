@@ -1,15 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Newtonsoft.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace F2M6PROG
 {
     public class SCP
     {
+        [JsonProperty("Name")]
         public string Name;
+
+        [JsonProperty("Description")]
         public string Description;
+
+        [JsonProperty("SCP_Procedure")]
         public string SCP_procedure;
+
+        [JsonProperty("AccesLevel")]
         public int AccessLevel;
+
+        [JsonProperty("Objectclass")]
         public string Objectclass{get; private set;}
 
      

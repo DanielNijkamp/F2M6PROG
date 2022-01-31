@@ -13,7 +13,7 @@ namespace F2M6PROG
         public string Name { get; set; }
 
         [JsonProperty("SecurityClearance")]
-        public long SecurityClearance { get; set; }
+        public int SecurityClearance { get; set; }
 
         [JsonProperty("Password")]
         public string Password { get; set; }

@@ -12,23 +12,18 @@ namespace F2M6PROG
 {
     class Program
     {
-        
+        static Archive SCP_Archive = new Archive();
         static void Main(string[] args)
         {
             bool GettingsCurrentUser = false;
             bool AppRunning = false;
             bool GettingPassword = false;
+            bool GeneratingArchive = false;
             GettingsCurrentUser = true;
-            Archive SCP_Archive = new Archive();
+            
             Startup();
             DisplayFetchedUsers();
             Console.WriteLine($"Select which user you want to use {Environment.NewLine}");
-
-            //if json doesnt exist generate new library
-            SCP_Archive.Fetch_SCP_Library();
-
-
-
             while (GettingsCurrentUser)
             {
                 GetCurrentUser(AskForInput());
@@ -45,14 +40,42 @@ namespace F2M6PROG
                 if (Login(Directory.currentuser))
                 {
                     GettingPassword = false;
-                    AppRunning = true;
-                    
+                    GeneratingArchive = true;
+                    Console.Clear();
                 }
             } // ask for password for the user 
+            while (GeneratingArchive)
+            {
+                //if json doesnt exist generate new library
+                if (!File.Exists(@"D:\MA\Projects\F2M6PROG\F2M6PROG\F2M6PROG\SCP_DATABASE.json"))
+                {
+                    Console.WriteLine("SCP_DATABASE.json does not exist would you like to generate it? [Y/N]");
+                    Console.WriteLine("Note: Generating will take approx. 5 minutes and requires a internet connection");
+                    int input = AskYesOrNo();
+                    if (input == 1)
+                    {
+                        Console.Clear();
+                        SCP_Archive.Fetch_SCP_Library();
+                        GeneratingArchive = false;
+                        AppRunning = true;
+
+                    }
+                    else if (input == 0)
+                    {
+                        Quit();
+                    }
+
+                }
+            }
+            Console.WriteLine($"You can access a SCP file by typing [ GetSCP ]");
             while (AppRunning)
             {
-                
+                AskForSCP();
             } //actual app
+        }
+        public static void Help()
+        {
+            Console.WriteLine($"List of commands: Help, Quit, GetSCP");
         }
         public static bool Login(User user)
         {
@@ -101,11 +124,131 @@ namespace F2M6PROG
                 
 
         } //ask to close application
+
+        public static void AskForSCP()
+        {
+            Console.WriteLine($"Would you like to browse a SCP series or access a specific scp?{Environment.NewLine} Type 1 to access a series, Type 2 for a specific SCP");
+            int choice = 0;
+
+
+            bool s1 = false;
+            bool s2 = false;
+            bool s3 = false;
+            while (!s1)
+            {
+                string input = Console.ReadLine();
+                if (input.Contains("Quit") || input.Contains("quit"))
+                {
+                    Quit();
+                }
+                if (input.Contains("Help") || input.Contains("help"))
+                {
+                    Help();
+                    s1 = true;
+                }
+                if (input.Contains("1"))
+                {
+                    Console.WriteLine("Select which SCP series you would like to access");
+                    foreach(List<SCP> scp_list in SCP_Archive.SCP_Series)
+                    {
+                        Console.WriteLine($"SCP | Series-{SCP_Archive.SCP_Series.IndexOf(scp_list)}");
+                    }
+                    s1 = true;
+                    s2 = true;
+                }
+                else if (input.Contains("2"))
+                {
+                    Console.WriteLine("Select which SCP file you would like to access");
+                    s2 = true;
+                    s3 = true;
+                }
+                else
+                {
+                    Console.WriteLine("Invalid input");
+                }
+            }
+
+            //series
+            while (s2)
+            {
+                string input = Console.ReadLine();
+                if(int.TryParse(input, out choice))
+                {
+                    
+                }
+                if(input.Contains("Help") || input.Contains("help"))
+                {
+                    Help();
+                }
+                else if (input.Contains("Quit") || input.Contains("quit"))
+                {
+                    Quit();
+                }
+                else if (input.Contains("Exit") || input.Contains("exit"))
+                {
+                    s1 = false;
+                    s2 = false;
+                    s3 = false;
+                    return;
+                }
+                else
+                {
+                    Console.WriteLine("Invalid input");
+                }
+            }
+            //specific scp
+            while (s3)
+            {
+                string input = Console.ReadLine();
+                if (input.Contains("Help") || input.Contains("help"))
+                {
+                    Help();
+                }
+                else if (input.Contains("Quit") || input.Contains("quit"))
+                {
+                    Quit();
+                }
+                else if (input.Contains("Exit") || input.Contains("exit"))
+                {
+                    s1 = false;
+                    s2 = false;
+                    s3 = false;
+                    return;
+                }
+                else
+                {
+                    Console.WriteLine("Invalid input");
+                }
+            }
+            
+
+                
+            
+        }
+        public static int AskYesOrNo()
+        {
+            string console = Console.ReadLine();
+            if (console == "Y" || console == "y" || console == "Yes" || console == "yes")
+            {
+                return 1;
+            }
+            else if (console == "N" || console == "No" || console == "n" || console == "no")
+            {
+                return 0;
+            }
+            else
+            {
+                Console.WriteLine("Invalid input: Option not available");
+                return 0;
+            }
+            
+        }
         public static int AskForInput()
         {
             int maxNumber = GetUsers().Count;
             int input;
             string console = Console.ReadLine();
+            
             if (console == "Quit" || console == "quit" || console == "Exit" || console == "exit")
             {
                 Quit();

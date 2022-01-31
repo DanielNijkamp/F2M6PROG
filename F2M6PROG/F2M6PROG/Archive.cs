@@ -23,7 +23,7 @@ namespace F2M6PROG
         //user access level
         //remove, add SCP's
 
-        List<List<SCP>> SCP_Series = new List<List<SCP>>();
+        public List<List<SCP>> SCP_Series = new List<List<SCP>>();
 
         public void AddSCP(SCP scp)
         {
@@ -33,21 +33,9 @@ namespace F2M6PROG
         {
 
         }
-        public void SortA_Z()
-        {
-
-        }
-        public void Sort0_7()
-        {
-
-        }
         public void Get_Specific_SCP(int position)
         {
-
-
-
-
-
+            
         }
 
 
@@ -59,18 +47,18 @@ namespace F2M6PROG
             int cycle_count = 0;
 
             stopwatch.Start();
-            for (int x = scp_series; scp_series < 8;)
+            for (int x = scp_series; scp_series < 3;) // 8 
             {
                 List<SCP> scp_series_list = new List<SCP>();
                 switch (scp_series)
                 {
                     case 1:
-                        cycle_count = 1000;
+                        cycle_count = 10; //1000
                         start_counting_point = 1;
                         break;
                     case 2:
-                        cycle_count = 2000;
-                        start_counting_point = 1000;
+                        cycle_count = 20; // 2000
+                        start_counting_point = 10; //1000
                         break;
                     case 3:
                         cycle_count = 3000;
@@ -115,10 +103,12 @@ namespace F2M6PROG
             }
             stopwatch.Stop();
             Console.WriteLine($"Completed within: [{stopwatch.Elapsed}] Seconds");
+
             Console.WriteLine(SCP_Series[0].Count);
+            Console.WriteLine(SCP_Series[1].Count);
 
         }
-        public async Task<SCP> GenerateSCP(int scp_count)
+        private async Task<SCP>GenerateSCP(int scp_count)
         {
                 HtmlDocument doc = new HtmlDocument();
                 int security_level = 0;
@@ -203,16 +193,23 @@ namespace F2M6PROG
                 SCP generated_scp = new SCP(name, security_level, objectclass, proc, desc);
                 if (desc != null && objectclass != null && proc != null)
                 {
-                Console.WriteLine($"Name: [{generated_scp.Name}] LV:[{generated_scp.AccessLevel}] Class: [{generated_scp.Objectclass}]");
+                Console.WriteLine($"Name: [{generated_scp.Name}] LV:[{generated_scp.AccessLevel}]");
                 return generated_scp;
                 }
                 else
                 {
+                Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine($"Error retrieving information about [SCP-{scp_count.ToString().PadLeft(3, '0')}]");
+                Console.ResetColor();
                 return null;
                 }
                 
             }
+
+        public void ConvertToJson()
+        {
+
+        }
             
        
     }
