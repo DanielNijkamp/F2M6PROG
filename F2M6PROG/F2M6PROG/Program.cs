@@ -20,7 +20,8 @@ namespace F2M6PROG
             bool GettingPassword = false;
             bool GeneratingArchive = false;
             GettingsCurrentUser = true;
-            
+
+           
             Startup();
             DisplayFetchedUsers();
             Console.WriteLine($"Select which user you want to use {Environment.NewLine}");
@@ -130,11 +131,10 @@ namespace F2M6PROG
             Console.WriteLine($"Would you like to browse a SCP series or access a specific scp?{Environment.NewLine} Type 1 to access a series, Type 2 for a specific SCP");
             int choice = 0;
 
-
-            bool s1 = false;
+            bool choosing  = false;
             bool s2 = false;
             bool s3 = false;
-            while (!s1)
+            while (!choosing)
             {
                 string input = Console.ReadLine();
                 if (input.Contains("Quit") || input.Contains("quit"))
@@ -144,7 +144,7 @@ namespace F2M6PROG
                 if (input.Contains("Help") || input.Contains("help"))
                 {
                     Help();
-                    s1 = true;
+                    choosing = true;
                 }
                 if (input.Contains("1"))
                 {
@@ -153,13 +153,14 @@ namespace F2M6PROG
                     {
                         Console.WriteLine($"SCP | Series-{SCP_Archive.SCP_Series.IndexOf(scp_list)}");
                     }
-                    s1 = true;
+                    choosing = true;
                     s2 = true;
                 }
                 else if (input.Contains("2"))
                 {
                     Console.WriteLine("Select which SCP file you would like to access");
-                    s2 = true;
+                    choosing = true;
+                    s2 = false;
                     s3 = true;
                 }
                 else
@@ -171,11 +172,8 @@ namespace F2M6PROG
             //series
             while (s2)
             {
+                int series = 0;
                 string input = Console.ReadLine();
-                if(int.TryParse(input, out choice))
-                {
-                    
-                }
                 if(input.Contains("Help") || input.Contains("help"))
                 {
                     Help();
@@ -186,7 +184,7 @@ namespace F2M6PROG
                 }
                 else if (input.Contains("Exit") || input.Contains("exit"))
                 {
-                    s1 = false;
+                    choosing = false;
                     s2 = false;
                     s3 = false;
                     return;
@@ -199,7 +197,49 @@ namespace F2M6PROG
             //specific scp
             while (s3)
             {
+                int series = 0;
                 string input = Console.ReadLine();
+                if (int.TryParse(input, out choice))
+                {
+                    Console.WriteLine(choice);
+                    if (choice > 0 && choice < 1000)
+                    {
+                        series = 0;
+                    }
+                    else if (choice > 1000 && choice < 2000)
+                    {
+                        series = 1;
+                    }
+                    else if (choice > 2000 && choice < 3000)
+                    {
+                        series = 2;
+                    }
+                    else if (choice > 3000 && choice < 4000)
+                    {
+                        series = 3;
+                    }
+                    else if (choice > 4000 && choice < 5000)
+                    {
+                        series = 4;
+                    }
+                    else if (choice > 5000 && choice < 6000)
+                    {
+                        series = 5;
+                    }
+                    else if (choice > 6000 && choice < 7000)
+                    {
+                        series = 6;
+                    }
+                    try
+                    {
+                        DisplaySCP(series, choice);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e.Message);
+                    }
+
+                }
                 if (input.Contains("Help") || input.Contains("help"))
                 {
                     Help();
@@ -210,15 +250,12 @@ namespace F2M6PROG
                 }
                 else if (input.Contains("Exit") || input.Contains("exit"))
                 {
-                    s1 = false;
+                    choosing = false;
                     s2 = false;
                     s3 = false;
                     return;
                 }
-                else
-                {
-                    Console.WriteLine("Invalid input");
-                }
+                
             }
             
 
@@ -245,10 +282,12 @@ namespace F2M6PROG
         }
         public static int AskForInput()
         {
+
             int maxNumber = GetUsers().Count;
             int input;
             string console = Console.ReadLine();
             
+          
             if (console == "Quit" || console == "quit" || console == "Exit" || console == "exit")
             {
                 Quit();
@@ -258,12 +297,13 @@ namespace F2M6PROG
             {
                 if (int.TryParse(console, out input))
                 {
-                    if (input < maxNumber)
+                    if (input <= maxNumber)
                     {
                         Directory.FetchedUser = true;
                         Directory.InputUser = input;
                         return input;
                     }
+                    
                     Console.WriteLine("Invalid input: Option not available");
                 }
                 else
@@ -274,21 +314,63 @@ namespace F2M6PROG
                 return input;
             }
         } // ask which user to use
+
+        public static void DisplaySCP( int series, int scp)
+        {
+            bool q1 = false;
+            if (SCP_Archive.SCP_Series[series][scp] != null)
+            {
+                if (SCP_Archive.SCP_Series[series][scp].AccessLevel <= Directory.currentuser.SecurityClearance)
+                {
+                    Console.Clear();
+                    Console.WriteLine($"SCP-{scp}{Environment.NewLine}Object class: [{SCP_Archive.SCP_Series[series][scp].Objectclass}]");
+                    Console.WriteLine("----------------------------------------");
+                    Console.WriteLine(SCP_Archive.SCP_Series[series][scp].Objectclass);
+                    Console.WriteLine("----------------------------------------");
+                    Console.WriteLine(SCP_Archive.SCP_Series[series][scp].SCP_procedure);
+                    Console.WriteLine("Would you like to exit? [Y/N]");
+                    q1 = true;
+
+                    while (q1)
+                    {
+                        string input = Console.ReadLine();
+                        if (input.Contains("Yes") || input.Contains("yes") || input.Contains("y") || input.Contains("Y"))
+                        {
+                            q1 = false;
+                            return;
+                        }
+                        if (input.Contains("No") || input.Contains("no") || input.Contains("n") || input.Contains("N"))
+                        {
+
+                        }
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("You do not have high enough clearance to view this file");
+                }
+            }
+            
+            
+
+
+        }
         public static void GetCurrentUser(int userint)
         {
-            if (userint < GetUsers().Count)
+            if (userint <= GetUsers().Count)
             {
                 if (userint > 0)
                 {
                     Directory.currentuser = GetUsers().Values.ElementAt(userint - 1);
                 }
+                
+                
 
             }
         } // get user index in users dictionary
         public static Dictionary<int, User> GetUsers()
         {
             Dictionary<int, User> Users = new Dictionary<int, User>();
-            
             string filename = @"D:\MA\Projects\F2M6PROG\F2M6PROG\F2M6PROG\Data.json";
             string jsonstring = File.ReadAllText(filename);
             Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(jsonstring);
