@@ -13,6 +13,7 @@ using System.Diagnostics;
 using System.Linq;
 
 
+
 namespace F2M6PROG
 {
     class Archive
@@ -92,10 +93,18 @@ namespace F2M6PROG
                     scp_count++;
                 }
                 Task.WaitAll(tasklist.Values.ToArray());
-                tasklist.Keys.ToList().OrderBy(start_counting_point => cycle_count);
-                foreach (KeyValuePair<int, Task<SCP>> entry in tasklist)
+                foreach (KeyValuePair<int, Task<SCP>> entry in tasklist.OrderBy(start_counting_point => cycle_count))
                 {
-                    scp_series_list.Add(entry.Value.Result);
+                        scp_series_list.Add(entry.Value.Result);
+                        if (entry.Value.Result != null)
+                        {
+                        Console.WriteLine(entry.Value.Result.Name);
+                        }
+                    else
+                    {
+                        Console.WriteLine($"{tasklist.ToList().IndexOf(entry)} = null");
+                    }
+                        
                 }
                 SCP_Series.Add(scp_series_list); // add the local SCP list to SCP_SERIES so user can explore the individual series
                 Console.WriteLine($"SCP_SERIES LIST COUNT IS: {SCP_Series.Count}");
@@ -103,7 +112,8 @@ namespace F2M6PROG
                 x++;
             }
             stopwatch.Stop();
-            Console.WriteLine($"Completed within: [{stopwatch.Elapsed}] Seconds");
+            
+            Console.WriteLine($"{Environment.NewLine}Completed within: [{stopwatch.Elapsed}] Seconds");
 
             Console.WriteLine(SCP_Series[0].Count);
             Console.WriteLine(SCP_Series[1].Count);
@@ -133,14 +143,12 @@ namespace F2M6PROG
                 using (var client = new HttpClient(hch))
                 {
                 //set Accept headers
-
                 client.DefaultRequestHeaders.TryAddWithoutValidation("Accept","text/html,application/xhtml+xml,application/xml,application/json");
-                //set User agent
                 client.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", "Mozilla/5.0 (Windows NT 6.3; WOW64; Trident/7.0; EN; rv:11.0) like Gecko");
                 client.DefaultRequestHeaders.TryAddWithoutValidation("Accept-Charset", "ISO-8859-1");
                 try
                     {
-                        var response = await client.GetStringAsync(link);
+                        var response = await client.GetStringAsync(link); // get string asynchronously
                         if (response != null)
                         {
                             doc.LoadHtml(response);
@@ -172,7 +180,8 @@ namespace F2M6PROG
                             break;
                     }
                 }
-                string name = $"SCP-{scp_count.ToString().PadLeft(3, '0')}";
+                string name = $"SCP-{scp_count.ToString().PadLeft(3, '0')}"; // sets a string to be the scp name
+
                 switch (objectclass)
                 {
                     case string a when a.Contains("Safe"):
@@ -191,18 +200,18 @@ namespace F2M6PROG
                         security_level = rnd.Next(4, 5);
                         break;
                 } // assigns random SCP access level based on object class
-                SCP generated_scp = new SCP(name, security_level, objectclass, proc, desc);
                 if (desc != null && objectclass != null && proc != null)
-                {
-                Console.WriteLine($"Name: [{generated_scp.Name}] LV:[{generated_scp.AccessLevel}]");
-                return generated_scp;
+                    {
+                      SCP generated_scp = new SCP(name, security_level, objectclass, proc, desc);
+                      Console.WriteLine($"Name: [{generated_scp.Name}] LV:[{generated_scp.AccessLevel}]");
+                      return generated_scp;
                 }
                 else
                 {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"Error retrieving information about [SCP-{scp_count.ToString().PadLeft(3, '0')}]");
-                Console.ResetColor();
-                return null;
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine($"Error retrieving information about [SCP-{scp_count.ToString().PadLeft(3, '0')}]");
+                    Console.ResetColor();
+                    return null;
                 }
                 
             }

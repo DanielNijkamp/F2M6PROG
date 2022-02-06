@@ -68,7 +68,6 @@ namespace F2M6PROG
 
                 }
             }
-            Console.WriteLine($"You can access a SCP file by typing [ GetSCP ]");
             while (AppRunning)
             {
                 AskForSCP();
@@ -128,7 +127,7 @@ namespace F2M6PROG
 
         public static void AskForSCP()
         {
-            Console.WriteLine($"Would you like to browse a SCP series or access a specific scp?{Environment.NewLine} Type 1 to access a series, Type 2 for a specific SCP");
+            Console.WriteLine($"Would you like to browse a SCP series or access a specific scp?{Environment.NewLine}Type 1 to access a series | Type 2 for a specific SCP");
             int choice = 0;
 
             bool choosing  = false;
@@ -201,7 +200,6 @@ namespace F2M6PROG
                 string input = Console.ReadLine();
                 if (int.TryParse(input, out choice))
                 {
-                    Console.WriteLine(choice);
                     if (choice > 0 && choice < 1000)
                     {
                         series = 0;
@@ -315,7 +313,7 @@ namespace F2M6PROG
             }
         } // ask which user to use
 
-        public static void DisplaySCP( int series, int scp)
+        public static void DisplaySCP(int series, int scp)
         {
             bool q1 = false;
             if (SCP_Archive.SCP_Series[series][scp] != null)
@@ -323,9 +321,9 @@ namespace F2M6PROG
                 if (SCP_Archive.SCP_Series[series][scp].AccessLevel <= Directory.currentuser.SecurityClearance)
                 {
                     Console.Clear();
-                    Console.WriteLine($"SCP-{scp}{Environment.NewLine}Object class: [{SCP_Archive.SCP_Series[series][scp].Objectclass}]");
+                    Console.WriteLine($"SCP-{scp.ToString().PadLeft(3, '0')}{Environment.NewLine}[{SCP_Archive.SCP_Series[series][scp].Objectclass}]");
                     Console.WriteLine("----------------------------------------");
-                    Console.WriteLine(SCP_Archive.SCP_Series[series][scp].Objectclass);
+                    Console.WriteLine(SCP_Archive.SCP_Series[series][scp].Description);
                     Console.WriteLine("----------------------------------------");
                     Console.WriteLine(SCP_Archive.SCP_Series[series][scp].SCP_procedure);
                     Console.WriteLine("Would you like to exit? [Y/N]");
@@ -339,16 +337,17 @@ namespace F2M6PROG
                             q1 = false;
                             return;
                         }
-                        if (input.Contains("No") || input.Contains("no") || input.Contains("n") || input.Contains("N"))
-                        {
-
-                        }
+                        
                     }
                 }
                 else
                 {
                     Console.WriteLine("You do not have high enough clearance to view this file");
                 }
+            }
+            else
+            {
+                Console.WriteLine($"File for SCP-{scp.ToString().PadLeft(3, '0')} does not exist or there was an error retrieving information about the SCP");
             }
             
             
