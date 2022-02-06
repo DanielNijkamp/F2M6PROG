@@ -55,12 +55,12 @@ namespace F2M6PROG
                 switch (scp_series)
                 {
                     case 1:
-                        cycle_count = 10; //1000
+                        cycle_count = 1000; //1000
                         start_counting_point = 1;
                         break;
                     case 2:
-                        cycle_count = 20; // 2000
-                        start_counting_point = 10; //1000
+                        cycle_count = 2000; // 2000
+                        start_counting_point = 1000; //1000
                         break;
                     case 3:
                         cycle_count = 3000;
@@ -113,11 +113,7 @@ namespace F2M6PROG
             }
             stopwatch.Stop();
             
-            Console.WriteLine($"{Environment.NewLine}Completed within: [{stopwatch.Elapsed}] Seconds");
-
-            Console.WriteLine(SCP_Series[0].Count);
-            Console.WriteLine(SCP_Series[1].Count);
-
+            Console.WriteLine($"{Environment.NewLine}Completed within: [{stopwatch.Elapsed}] Seconds{Environment.NewLine}");
         }
         private async Task<SCP>GenerateSCP(int scp_count)
         {

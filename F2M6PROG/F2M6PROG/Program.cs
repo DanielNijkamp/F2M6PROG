@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using Newtonsoft.Json.Serialization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
@@ -145,17 +146,17 @@ namespace F2M6PROG
                     Help();
                     choosing = true;
                 }
-                if (input.Contains("1"))
+                if (input == "1")
                 {
                     Console.WriteLine("Select which SCP series you would like to access");
                     foreach(List<SCP> scp_list in SCP_Archive.SCP_Series)
                     {
-                        Console.WriteLine($"SCP | Series-{SCP_Archive.SCP_Series.IndexOf(scp_list)}");
+                        Console.WriteLine($"SCP | Series-{SCP_Archive.SCP_Series.IndexOf(scp_list) +1}");
                     }
                     choosing = true;
                     s2 = true;
                 }
-                else if (input.Contains("2"))
+                else if (input == "2")
                 {
                     Console.WriteLine("Select which SCP file you would like to access");
                     choosing = true;
@@ -171,9 +172,52 @@ namespace F2M6PROG
             //series
             while (s2)
             {
-                int series = 0;
+                bool q1 = false;
                 string input = Console.ReadLine();
-                if(input.Contains("Help") || input.Contains("help"))
+                if (int.TryParse(input, out choice))
+                {
+                    try
+                    {
+                        Console.WriteLine($"Series-[{choice}] has [{SCP_Archive.SCP_Series[choice - 1].Count}] SCP files");
+                    }
+                    catch(ArgumentOutOfRangeException)
+                    {
+                        Console.WriteLine("Index was out of range, Please give a valid input");
+                        break;
+                    }
+                    Console.WriteLine($"Select which scp you would like to access");
+                    q1 = true;
+                    while (q1)
+                    {
+                        string input2 = Console.ReadLine();
+                        int choice2 = 0;
+                        if (input2.Contains("Help") || input.Contains("help"))
+                        {
+                            Help();
+                        }
+                        else if (input2.Contains("Quit") || input.Contains("quit"))
+                        {
+                            Quit();
+                        }
+                        else if (input2.Contains("Exit") || input.Contains("exit"))
+                        {
+                            q1 = false;
+                        }
+                            if (int.TryParse(input2, out choice2))
+                        {
+                            try
+                            {
+                                DisplaySCP(choice-1, choice2);
+                            }
+                            catch (Exception e)
+                            {
+                                Console.WriteLine(e.Message);
+                            }
+                        }
+                        
+                    }
+                }
+                else if (input.Contains("Help") || input.Contains("help"))
                 {
                     Help();
                 }
@@ -316,19 +360,32 @@ namespace F2M6PROG
         public static void DisplaySCP(int series, int scp)
         {
             bool q1 = false;
-            if (SCP_Archive.SCP_Series[series][scp] != null)
+            SCP current_scp = null;
+
+            string name = $"SCP-{scp.ToString().PadLeft(3, '0')}";
+            foreach (SCP item in SCP_Archive.SCP_Series[series])
             {
-                if (SCP_Archive.SCP_Series[series][scp].AccessLevel <= Directory.currentuser.SecurityClearance)
+                if (item != null)
+                {
+                    if (item.Name == name)
+                    {
+                        current_scp = item;
+                    }
+                }
+                  
+            }
+            if (current_scp != null)
+            {
+                if (current_scp.AccessLevel <= Directory.currentuser.SecurityClearance)
                 {
                     Console.Clear();
-                    Console.WriteLine($"SCP-{scp.ToString().PadLeft(3, '0')}{Environment.NewLine}[{SCP_Archive.SCP_Series[series][scp].Objectclass}]");
+                    Console.WriteLine($"SCP-{scp.ToString().PadLeft(3, '0')}{Environment.NewLine}[{current_scp.Objectclass}]");
                     Console.WriteLine("----------------------------------------");
-                    Console.WriteLine(SCP_Archive.SCP_Series[series][scp].Description);
+                    Console.WriteLine(current_scp.Description);
                     Console.WriteLine("----------------------------------------");
-                    Console.WriteLine(SCP_Archive.SCP_Series[series][scp].SCP_procedure);
+                    Console.WriteLine(current_scp.SCP_procedure);
                     Console.WriteLine("Would you like to exit? [Y/N]");
                     q1 = true;
-
                     while (q1)
                     {
                         string input = Console.ReadLine();
@@ -337,23 +394,23 @@ namespace F2M6PROG
                             q1 = false;
                             return;
                         }
-                        
+
                     }
                 }
                 else
                 {
                     Console.WriteLine("You do not have high enough clearance to view this file");
                 }
+
             }
             else
             {
-                Console.WriteLine($"File for SCP-{scp.ToString().PadLeft(3, '0')} does not exist or there was an error retrieving information about the SCP");
+                Console.WriteLine("SCP file does not exist or script was not able to retrieve information about the SCP");
             }
             
-            
-
 
         }
+        
         public static void GetCurrentUser(int userint)
         {
             if (userint <= GetUsers().Count)
