@@ -49,7 +49,7 @@ namespace F2M6PROG
             int cycle_count = 0;
 
             stopwatch.Start();
-            for (int x = scp_series; scp_series < 3;) // 8 
+            for (int x = scp_series; scp_series < 8;) // 8 
             {
                 List<SCP> scp_series_list = new List<SCP>();
                 switch (scp_series)
@@ -95,16 +95,7 @@ namespace F2M6PROG
                 Task.WaitAll(tasklist.Values.ToArray());
                 foreach (KeyValuePair<int, Task<SCP>> entry in tasklist.OrderBy(start_counting_point => cycle_count))
                 {
-                        scp_series_list.Add(entry.Value.Result);
-                        if (entry.Value.Result != null)
-                        {
-                        Console.WriteLine(entry.Value.Result.Name);
-                        }
-                    else
-                    {
-                        Console.WriteLine($"{tasklist.ToList().IndexOf(entry)} = null");
-                    }
-                        
+                        scp_series_list.Add(entry.Value.Result);     
                 }
                 SCP_Series.Add(scp_series_list); // add the local SCP list to SCP_SERIES so user can explore the individual series
                 Console.WriteLine($"SCP_SERIES LIST COUNT IS: {SCP_Series.Count}");
