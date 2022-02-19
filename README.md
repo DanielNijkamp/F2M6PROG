@@ -1,3 +1,3 @@
 # F2M6PROG
 
-[![Showcase Video](https://youtu.be/dXx1zjHNmOg)
+[Showcase Video](https://youtu.be/dXx1zjHNmOg)
